@@ -47,22 +47,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           data: MediaQuery.of(
             context,
           ).copyWith(textScaler: const TextScaler.linear(1)),
-          child: Builder(
-            builder: (context) {
-              return MaterialApp(
-                navigatorKey: navigatorKey,
-                builder: FToastBuilder(),
-                debugShowCheckedModeBanner: false,
-                home: HomeScreen(),
-                theme: ThemeData(
-                  textSelectionTheme: TextSelectionThemeData(
-                    cursorColor: Colors.black,
-                    selectionHandleColor: Colors.black,
-                    selectionColor: Colors.black38,
-                  ),
-                ),
-              );
-            },
+          child: MaterialApp(
+            navigatorKey: navigatorKey,
+            builder: FToastBuilder(),
+            debugShowCheckedModeBanner: false,
+            home: HomeScreen(),
+            theme: ThemeData(
+              textSelectionTheme: TextSelectionThemeData(
+                cursorColor: Colors.black,
+                selectionHandleColor: Colors.black,
+                selectionColor: Colors.black38,
+              ),
+            ),
           ),
         );
       },

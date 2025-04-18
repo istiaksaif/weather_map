@@ -38,6 +38,7 @@ class ApiClient {
           .timeout(Duration(seconds: timeoutInSeconds));
       return handleResponse(response, uri);
     } catch (e) {
+      debugPrint('_____$e');
       return Response(noInternetMessage, 0);
     }
   }

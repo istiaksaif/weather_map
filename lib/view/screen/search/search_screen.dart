@@ -24,7 +24,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      await ref.read(forecastServiceProvider.notifier).fetchSavedWeatherList();
+      await ref.read(searchServiceProvider.notifier).fetchSavedWeatherList();
     });
   }
 
@@ -37,6 +37,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final forecast = ref.watch(searchServiceProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
@@ -107,30 +108,25 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
               ),
             ),
-            Consumer(
-              builder: (context, ref, _) {
-                final forecast = ref.watch(forecastServiceProvider);
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: forecast?.length,
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  itemBuilder: (context, index) {
-                    WeatherModel weatherModel = WeatherModel();
-                    if (forecast != null && forecast.isNotEmpty) {
-                      weatherModel = forecast[index];
-                    }
-                    return Padding(
-                      padding: EdgeInsets.only(top: index < 5 ? 10.h : 0),
-                      child: forecastCard(
-                        weatherModel.name ?? '',
-                        Constant.kelvinToFahrenheit(weatherModel.main?.temp),
-                        '',
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        padding: EdgeInsets.symmetric(vertical: 15.h),
-                      ),
-                    );
-                  },
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: forecast?.length ?? 0,
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              itemBuilder: (context, index) {
+                WeatherModel weatherModel = WeatherModel();
+                if (forecast != null && forecast.isNotEmpty) {
+                  weatherModel = forecast[index];
+                }
+                return Padding(
+                  padding: EdgeInsets.only(top: index > 0 ? 10.h : 0),
+                  child: forecastCard(
+                    weatherModel.name ?? '',
+                    Constant.kelvinToFahrenheit(weatherModel.main?.temp),
+                    '',
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    padding: EdgeInsets.symmetric(vertical: 15.h),
+                  ),
                 );
               },
             ),

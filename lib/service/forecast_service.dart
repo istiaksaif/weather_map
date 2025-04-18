@@ -42,18 +42,4 @@ class ForecastService extends StateNotifier<List<WeatherModel>?> {
     } catch (_) {
     } finally {}
   }
-
-  Future<void> fetchSavedWeatherList() async {
-    try {
-      final jsonString = SessionManager.getValue(kSavedLocation, value: '');
-      if (jsonString != null && jsonString.isNotEmpty) {
-        List<dynamic> decoded = jsonDecode(jsonString);
-        List<WeatherModel> weatherList =
-            decoded
-                .map((e) => WeatherModel.fromJson(e as Map<String, dynamic>))
-                .toList();
-        state = weatherList;
-      }
-    } catch (_) {}
-  }
 }

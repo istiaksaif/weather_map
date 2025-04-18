@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
-import '../model/error_model.dart';
 import '../model/weather_model.dart';
 import '../utils/session_manager.dart';
 import '../view/widget/show_custom_toast.dart';
@@ -43,8 +42,7 @@ class WeatherService extends StateNotifier<WeatherModel?> {
           saveWeatherList(weatherModel);
         }
       } else if (response.statusCode == 404) {
-        ErrorModel errorModel = errorModelFromJson(response.body);
-        showCustomToast(errorModel.message ?? '');
+        showCustomToast(response.body);
       }
     } catch (_) {
     } finally {}

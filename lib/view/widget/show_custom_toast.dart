@@ -24,7 +24,7 @@ void showCustomToast(String message, {int duration = 2}) {
           child: Text(
             message,
             textAlign: TextAlign.center,
-            style: dmReg.copyWith(fontSize: 16.sp),
+            style: dmReg.copyWith(fontSize: 16.sp, color: Colors.white),
           ),
         ),
       ],
