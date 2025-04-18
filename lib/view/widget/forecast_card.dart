@@ -31,7 +31,7 @@ Widget forecastCard(
         children: [
           Text(day, style: dmMedium.copyWith(fontSize: 18.sp)),
           Text(value, style: workReg),
-          dayTypeContainer(size: 24, type: dayType),
+          if (dayType.isNotEmpty) dayTypeContainer(size: 24, type: dayType),
         ],
       ),
     ),

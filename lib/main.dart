@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get_storage/get_storage.dart';
+import 'utils/session_manager.dart';
 import 'view/screen/home/home_screen.dart';
 
-void main() {
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await GetStorage.init();
+  SessionManager.init();
   runApp(ProviderScope(child: const MyApp()));
 }
 
@@ -42,6 +50,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           child: Builder(
             builder: (context) {
               return MaterialApp(
+                navigatorKey: navigatorKey,
+                builder: FToastBuilder(),
                 debugShowCheckedModeBanner: false,
                 home: HomeScreen(),
                 theme: ThemeData(

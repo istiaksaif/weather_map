@@ -1,27 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../controller/weather_controller.dart';
+import '../../../model/weather_model.dart';
+import '../../../utils/_constant.dart';
 import '../../../utils/app_fonts.dart';
 import '../../../utils/app_text.dart';
 import '../../widget/custom_app_bar.dart';
 import '../../widget/forecast_card.dart';
 
-class SearchScreen extends StatefulWidget {
+class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() async {
+      await ref.read(forecastServiceProvider.notifier).fetchSavedWeatherList();
+    });
+  }
+
+  void onSearch() {
+    ref
+        .read(weatherServiceProvider.notifier)
+        .fetchWeather(city: searchController.text);
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: AppText.dailyDetailsScreen,
+        title: AppText.searchScreen,
         isBackButtonExist: false,
       ),
       body: SingleChildScrollView(
@@ -39,14 +58,16 @@ class _SearchScreenState extends State<SearchScreen> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: TextFormField(
-                // initialValue: value,
-                // onChanged: (val) => update(val),
-                // onTap: ()=>update(searchController.text),
                 controller: searchController,
+                onEditingComplete: () {
+                  onSearch();
+                },
+                textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
                   hintText: 'Search locations...',
                   filled: true,
                   fillColor: Colors.grey[100],
+                  suffixIcon: Icon(Icons.search_rounded),
                   hintStyle: dmMedium.copyWith(
                     color: Colors.black,
                     fontSize: 16.sp,
@@ -86,21 +107,30 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: 5,
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: EdgeInsets.only(top: index < 5 ? 10.h : 0),
-                  child: forecastCard(
-                    'Mon',
-                    '74 / 65',
-                    '',
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    padding: EdgeInsets.symmetric(vertical: 15.h),
-                  ),
+            Consumer(
+              builder: (context, ref, _) {
+                final forecast = ref.watch(forecastServiceProvider);
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: forecast?.length,
+                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                  itemBuilder: (context, index) {
+                    WeatherModel weatherModel = WeatherModel();
+                    if (forecast != null && forecast.isNotEmpty) {
+                      weatherModel = forecast[index];
+                    }
+                    return Padding(
+                      padding: EdgeInsets.only(top: index < 5 ? 10.h : 0),
+                      child: forecastCard(
+                        weatherModel.name ?? '',
+                        Constant.kelvinToFahrenheit(weatherModel.main?.temp),
+                        '',
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        padding: EdgeInsets.symmetric(vertical: 15.h),
+                      ),
+                    );
+                  },
                 );
               },
             ),

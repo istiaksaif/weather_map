@@ -25,12 +25,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // ref.read(weatherServiceProvider.notifier).fetchWeather();
-    // ref.read(forecastServiceProvider.notifier).fetchForecast();
     Future.microtask(() async {
       Position? position =
           await ref.read(weatherServiceProvider.notifier).getGeoLocation();
-      await ref.read(weatherServiceProvider.notifier).fetchWeather(position);
+      await ref
+          .read(weatherServiceProvider.notifier)
+          .fetchWeather(position: position);
       await ref.read(forecastServiceProvider.notifier).fetchForecast(position);
     });
   }
