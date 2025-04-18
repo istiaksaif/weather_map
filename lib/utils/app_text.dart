@@ -9,7 +9,7 @@ class AppText {
 
   static String get hourlyForecast => 'Hourly Forecast';
 
-  static String get recentLocation => 'Recent Locations';
+  static String get recentSearch => 'Recent Search';
 
   static String get popularCities => 'Popular Cities';
 }

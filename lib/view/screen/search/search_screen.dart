@@ -81,7 +81,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Padding(
                 padding: EdgeInsets.only(left: 20.w, top: 20.h, bottom: 10.h),
                 child: Text(
-                  AppText.recentLocation,
+                  AppText.recentSearch,
                   style: dmSemiBold.copyWith(fontSize: 18.sp),
                 ),
               ),

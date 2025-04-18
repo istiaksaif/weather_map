@@ -17,6 +17,7 @@ class WeatherModel {
   final int? timezone;
   final int? id;
   final String? name;
+  final String? dtTxt;
   final int? cod;
 
   WeatherModel({
@@ -33,6 +34,7 @@ class WeatherModel {
     this.id,
     this.name,
     this.cod,
+    this.dtTxt,
   });
 
   WeatherModel copyWith({
@@ -49,6 +51,7 @@ class WeatherModel {
     int? id,
     String? name,
     int? cod,
+    String? dtTxt
   }) =>
       WeatherModel(
         coord: coord ?? this.coord,
@@ -64,6 +67,7 @@ class WeatherModel {
         id: id ?? this.id,
         name: name ?? this.name,
         cod: cod ?? this.cod,
+        dtTxt: dtTxt ?? this.dtTxt,
       );
 
   factory WeatherModel.fromJson(Map<String, dynamic> json) => WeatherModel(
@@ -80,6 +84,7 @@ class WeatherModel {
     id: json["id"],
     name: json["name"],
     cod: json["cod"],
+    dtTxt: json["dt_txt"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -96,6 +101,7 @@ class WeatherModel {
     "id": id,
     "name": name,
     "cod": cod,
+    "dt_txt": dtTxt,
   };
 }
 

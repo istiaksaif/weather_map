@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../../../controller/weather_controller.dart';
+import '../../../model/weather_model.dart';
+import '../../../utils/_constant.dart';
 import '../../../utils/app_fonts.dart';
 import '../../../utils/app_text.dart';
 import '../../widget/custom_app_bar.dart';
@@ -22,13 +25,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(weatherServiceProvider).fetchWeather());
+    // ref.read(weatherServiceProvider.notifier).fetchWeather();
+    // ref.read(forecastServiceProvider.notifier).fetchForecast();
+    Future.microtask(() async {
+      Position? position =
+          await ref.read(weatherServiceProvider.notifier).getGeoLocation();
+      await ref.read(weatherServiceProvider.notifier).fetchWeather(position);
+      await ref.read(forecastServiceProvider.notifier).fetchForecast(position);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final weather = ref.watch(weatherServiceProvider);
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(title: AppText.homeScreen, isBackButtonExist: false),
@@ -66,9 +74,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text(
-                        'San Francisco',
-                        style: dmSemiBold.copyWith(fontSize: 20.sp),
+                      Consumer(
+                        builder: (context, ref, _) {
+                          final name = ref.watch(weatherServiceProvider)?.name;
+                          return Text(
+                            name ?? '_____',
+                            style: dmSemiBold.copyWith(fontSize: 20.sp),
+                          );
+                        },
                       ),
                       Icon(
                         Icons.arrow_circle_right_rounded,
@@ -90,9 +103,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Column(
                 spacing: 5.h,
                 children: [
-                  Text('72 F', style: workBlack.copyWith(height: 1.h)),
-                  Text('Sunny', style: dmMedium.copyWith(fontSize: 16.sp)),
-                  dayTypeContainer(),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final temp =
+                          ref.watch(weatherServiceProvider)?.main?.temp;
+                      return Text(
+                        Constant.kelvinToFahrenheit(temp),
+                        style: workBlack.copyWith(height: 1.h),
+                      );
+                    },
+                  ),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final type =
+                          ref
+                              .watch(weatherServiceProvider)
+                              ?.weather
+                              ?.first
+                              .main;
+                      return Column(
+                        spacing: 10.h,
+                        children: [
+                          Text(
+                            type ?? '_____',
+                            style: dmMedium.copyWith(fontSize: 16.sp),
+                          ),
+                          dayTypeContainer(type: type),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -106,28 +146,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: 5,
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: EdgeInsets.only(top: index < 5 ? 10.h : 0),
-                  child: forecastCard(
-                    'Mon',
-                    '74 / 65',
-                    'Sun',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          allowSnapshotting: false,
-                          builder: (context) => DailyDetailsScreen(),
-                        ),
-                      );
-                    },
-                  ),
+
+            Consumer(
+              builder: (context, ref, _) {
+                final forecast = ref.watch(forecastServiceProvider);
+                final uniqueForecast =
+                    (forecast != null && forecast.isNotEmpty)
+                        ? Constant.getUniqueDailyForecasts(forecast)
+                        : [];
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount:
+                      (uniqueForecast.length > 5) ? 5 : uniqueForecast.length,
+                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                  itemBuilder: (context, index) {
+                    WeatherModel weatherModel = WeatherModel();
+                    if (forecast != null && uniqueForecast.isNotEmpty) {
+                      weatherModel = uniqueForecast[index];
+                    }
+                    return Padding(
+                      padding: EdgeInsets.only(top: index < 5 ? 10.h : 0),
+                      child: forecastCard(
+                        Constant.getShortDayName(weatherModel.dtTxt),
+                        '${Constant.kelvinToFahrenheit(weatherModel.main?.tempMax)} / ${Constant.kelvinToFahrenheit(weatherModel.main?.tempMax)}',
+                        '${weatherModel.weather?.first.main}',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              allowSnapshotting: false,
+                              builder:
+                                  (context) => DailyDetailsScreen(
+                                    weatherModel: weatherModel,
+                                  ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
                 );
               },
             ),

@@ -10,7 +10,7 @@ Widget dayTypeContainer({double size = 50, String? type}) {
       iconData = Icons.wb_sunny;
       bgColor = Colors.orangeAccent;
       break;
-    case 'rainy':
+    case 'rain':
       iconData = Icons.beach_access;
       bgColor = Colors.blueAccent;
       break;
@@ -18,8 +18,12 @@ Widget dayTypeContainer({double size = 50, String? type}) {
       iconData = Icons.flash_on;
       bgColor = Colors.deepPurple;
       break;
-    case 'cloudy':
+    case 'clouds':
       iconData = Icons.cloud;
+      bgColor = Colors.grey;
+      break;
+    case 'clear':
+      iconData = Icons.wb_sunny;
       bgColor = Colors.grey;
       break;
     default:
